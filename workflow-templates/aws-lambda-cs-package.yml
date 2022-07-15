@@ -1,5 +1,5 @@
 
-name: AWS Lambda C# packaging SetupModalityLambda
+name: AWS Lambda C# packaging
 
 on:
   workflow_call:
