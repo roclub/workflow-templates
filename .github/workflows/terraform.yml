@@ -12,7 +12,7 @@ on:
       terraform_directory:
         required: false
         type: string
-        default: .
+        default: "."
       AWS_ACCESS_KEY_ID:
         required: false
         type: string
@@ -22,10 +22,6 @@ on:
       AWS_REGION:
         required: false
         type: string
-
-defaults:
-  run:
-    working-directory: ${{ inputs.terraform_directory}}
 
 jobs:
 
@@ -46,6 +42,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: ${{ inputs.artifact_name }}
+        path: ${{ inputs.terraform_directory }}        
 
     - name: "Install Terraform"
       uses: hashicorp/setup-terraform@v2
@@ -53,12 +50,14 @@ jobs:
         terraform_version: ${{ inputs.terraform_version }}
 
     - name: "Validate Terraform"
+      working-directory: ${{ inputs.terraform_directory }}
       run: |
         terraform init
         terraform validate -no-color
         terraform fmt -check -recursive
     
     - name: "Apply Terraform"
+      working-directory: ${{ inputs.terraform_directory }}
       run: |
         terraform init
         terraform apply
