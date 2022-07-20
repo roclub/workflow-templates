@@ -28,6 +28,10 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: ${{ inputs.terraform_directory }}
+
     env:
       AWS_ACCESS_KEY_ID: ${{ inputs.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
@@ -50,14 +54,12 @@ jobs:
         terraform_version: ${{ inputs.terraform_version }}
 
     - name: "Validate Terraform"
-      working-directory: ${{ inputs.terraform_directory }}
       run: |
         terraform init
         terraform validate -no-color
         terraform fmt -check -recursive
     
     - name: "Apply Terraform"
-      working-directory: ${{ inputs.terraform_directory }}
       run: |
         terraform init
         terraform apply
