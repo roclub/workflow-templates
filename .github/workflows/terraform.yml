@@ -1,0 +1,64 @@
+name: Terraform
+
+on:
+  workflow_call:
+    inputs:
+      artifact_name:
+        required: false
+        type: string
+      terraform_version:
+        required: true
+        type: string
+      terraform_directory:
+        required: false
+        type: string
+        default: .
+      AWS_ACCESS_KEY_ID:
+        required: false
+        type: string
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+        type: string
+      AWS_REGION:
+        required: false
+        type: string
+
+defaults:
+  run:
+    working-directory: ${{ inputs.terraform_directory}}
+
+jobs:
+
+  terraform:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ inputs.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ inputs.AWS_REGION }}
+
+    steps:
+    - name: "Checkout Git repository"
+      uses: actions/checkout@v2
+
+    - name: "Download Artifacts"
+      if: ${{ inputs.artifact_name != '' }}
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ inputs.artifact_name }}
+
+    - name: "Install Terraform"
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ inputs.terraform_version }}
+
+    - name: "Validate Terraform"
+      run: |
+        terraform init
+        terraform validate -no-color
+        terraform fmt -check -recursive
+    
+    - name: "Apply Terraform"
+      run: |
+        terraform init
+        terraform apply
