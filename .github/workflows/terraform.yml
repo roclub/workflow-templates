@@ -3,10 +3,22 @@ name: Terraform
 on:
   workflow_call:
     inputs:
-      artifact_name:
+      artifact_name1:
         required: false
         type: string
-      artifact_target_directory:
+      artifact_target_directory1:
+        required: false
+        type: string
+      artifact_name2:
+        required: false
+        type: string
+      artifact_target_directory2:
+        required: false
+        type: string
+      artifact_name3:
+        required: false
+        type: string
+      artifact_target_directory3:
         required: false
         type: string
       terraform_version:
@@ -44,12 +56,26 @@ jobs:
     - name: "Checkout Git repository"
       uses: actions/checkout@v2
 
-    - name: "Download Artifacts"
-      if: ${{ inputs.artifact_name != '' }}
+    - name: "Download Artifacts1"
+      if: ${{ inputs.artifact_name1 != '' }}
       uses: actions/download-artifact@v3
       with:
-        name: ${{ inputs.artifact_name }}
-        path: ${{ inputs.artifact_target_directory }}        
+        name: ${{ inputs.artifact_name1 }}
+        path: ${{ inputs.artifact_target_directory1 }}        
+
+    - name: "Download Artifacts2"
+      if: ${{ inputs.artifact_name2 != '' }}
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ inputs.artifact_name2 }}
+        path: ${{ inputs.artifact_target_directory2 }}   
+
+    - name: "Download Artifacts3"
+      if: ${{ inputs.artifact_name3 != '' }}
+      uses: actions/download-artifact@v3
+      with:
+        name: ${{ inputs.artifact_name3 }}
+        path: ${{ inputs.artifact_target_directory3 }}   
 
     - name: "Install Terraform"
       uses: hashicorp/setup-terraform@v2
