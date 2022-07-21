@@ -13,6 +13,9 @@ on:
       artifact_name:
         required: true
         type: string
+      artifact_path:
+        required: false
+        type: string
 
 jobs:
   build:
@@ -38,4 +41,4 @@ jobs:
       with:
         name: ${{ inputs.artifact_name }}
         path: |
-            ${{ inputs.projectname }}.zip
+          ${{ format('{0}/{1}.zip', inputs.artifact_path, inputs.projectname).zip }}
