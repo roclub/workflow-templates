@@ -6,6 +6,9 @@ on:
       artifact_name:
         required: false
         type: string
+      artifact_target_directory:
+        required: false
+        type: string
       terraform_version:
         required: true
         type: string
@@ -46,7 +49,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: ${{ inputs.artifact_name }}
-        path: ${{ inputs.terraform_directory }}        
+        path: ${{ inputs.artifact_target_directory }}        
 
     - name: "Install Terraform"
       uses: hashicorp/setup-terraform@v2
