@@ -16,6 +16,9 @@ on:
         required: false
         type: string
         default: "."
+      terraform_workspace:
+        required: false
+        type: string
       AWS_ACCESS_KEY_ID:
         required: false
         type: string
@@ -59,10 +62,12 @@ jobs:
     - name: "Validate Terraform"
       run: |
         terraform init
+        terraform workspace select ${{ inputs.terraform_workspace }}
         terraform validate -no-color
         terraform fmt -check -recursive
     
     - name: "Apply Terraform"
       run: |
         terraform init
-        terraform apply
+        terraform workspace select ${{ inputs.terraform_workspace }}
+        terraform apply --auto-approve
