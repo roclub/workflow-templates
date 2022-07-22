@@ -41,4 +41,4 @@ jobs:
       with:
         name: ${{ inputs.artifact_name }}
         path: |
-          ${{ format('{0}/{1}.zip', inputs.artifact_path, inputs.projectname).zip }}
+          ${{ inputs.artifact_path }}/${{ inputs.projectname) }}.zip
