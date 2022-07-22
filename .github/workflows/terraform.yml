@@ -19,12 +19,6 @@ on:
       terraform_workspace:
         required: false
         type: string
-      AWS_ACCESS_KEY_ID:
-        required: false
-        type: string
-      AWS_SECRET_ACCESS_KEY:
-        required: false
-        type: string
       AWS_REGION:
         required: false
         type: string
@@ -59,6 +53,9 @@ jobs:
           terraform_version: ${{ inputs.terraform_version }}
 
       - name: "Validate Terraform"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           terraform init
           terraform workspace select ${{ inputs.terraform_workspace }}
@@ -66,6 +63,9 @@ jobs:
           terraform fmt -check -recursive
 
       - name: "Apply Terraform"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           terraform init
           terraform workspace select ${{ inputs.terraform_workspace }}
