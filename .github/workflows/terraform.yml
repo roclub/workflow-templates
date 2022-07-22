@@ -30,7 +30,6 @@ on:
         type: string
 
 jobs:
-
   terraform:
     runs-on: ubuntu-latest
 
@@ -44,30 +43,30 @@ jobs:
       AWS_REGION: ${{ inputs.AWS_REGION }}
 
     steps:
-    - name: "Checkout Git repository"
-      uses: actions/checkout@v2
+      - name: "Checkout Git repository"
+        uses: actions/checkout@v2
 
-    - name: "Download Artifacts"
-      if: ${{ inputs.artifact_name != '' }}
-      uses: actions/download-artifact@v3
-      with:
-        name: ${{ inputs.artifact_name }}
-        path: ${{ inputs.artifact_target_directory }}        
+      - name: "Download Artifacts"
+        if: ${{ inputs.artifact_name != '' }}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ inputs.artifact_target_directory }}
 
-    - name: "Install Terraform"
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: ${{ inputs.terraform_version }}
+      - name: "Install Terraform"
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
 
-    - name: "Validate Terraform"
-      run: |
-        terraform init
-        terraform workspace select ${{ inputs.terraform_workspace }}
-        terraform validate -no-color
-        terraform fmt -check -recursive
-    
-    - name: "Apply Terraform"
-      run: |
-        terraform init
-        terraform workspace select ${{ inputs.terraform_workspace }}
-        terraform apply --auto-approve
+      - name: "Validate Terraform"
+        run: |
+          terraform init
+          terraform workspace select ${{ inputs.terraform_workspace }}
+          terraform validate -no-color
+          terraform fmt -check -recursive
+
+      - name: "Apply Terraform"
+        run: |
+          terraform init
+          terraform workspace select ${{ inputs.terraform_workspace }}
+          terraform apply -auto-approve
