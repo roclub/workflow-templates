@@ -1,4 +1,3 @@
-
 name: AWS Lambda C# packaging
 
 on:
@@ -10,29 +9,35 @@ on:
       projectpath:
         required: true
         type: string
+      artifact_name:
+        required: true
+        type: string
+      artifact_path:
+        required: false
+        type: string
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: "Checkout Git repository"
-      uses: actions/checkout@v2
+      - name: "Checkout Git repository"
+        uses: actions/checkout@v2
 
-    - name: "Setup .NET"
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 6.0.x
+      - name: "Setup .NET"
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 6.0.x
 
-    - name: "AWS CLI for .NET"
-      run: dotnet tool install -g Amazon.Lambda.Tools
+      - name: "AWS CLI for .NET"
+        run: dotnet tool install -g Amazon.Lambda.Tools
 
-    - name: "Package for AWS Lambda"
-      run: dotnet lambda package ${{ inputs.projectname }}.zip --configuration release --function-architecture x86_64 --project-location ${{ inputs.projectpath }}
+      - name: "Package for AWS Lambda"
+        run: dotnet lambda package ${{ inputs.projectname }}.zip --configuration release --function-architecture x86_64 --project-location ${{ inputs.projectpath }}
 
-    - name: "Archive artifacts"
-      uses: actions/upload-artifact@v3
-      with:
-        name: lambdaFunction
-        path: |
-            ${{ inputs.projectname }}.zip
+      - name: "Archive artifacts"
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: |
+            ${{ inputs.artifact_path }}/${{ inputs.projectname }}.zip

@@ -1,0 +1,72 @@
+name: Terraform
+
+on:
+  workflow_call:
+    inputs:
+      artifact_name:
+        required: false
+        type: string
+      artifact_target_directory:
+        required: false
+        type: string
+      terraform_version:
+        required: true
+        type: string
+      terraform_directory:
+        required: false
+        type: string
+        default: "."
+      terraform_workspace:
+        required: false
+        type: string
+      AWS_REGION:
+        required: false
+        type: string
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ${{ inputs.terraform_directory }}
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ inputs.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ inputs.AWS_REGION }}
+
+    steps:
+      - name: "Checkout Git repository"
+        uses: actions/checkout@v2
+
+      - name: "Download Artifacts"
+        if: ${{ inputs.artifact_name != '' }}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ inputs.artifact_target_directory }}
+
+      - name: "Install Terraform"
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+
+      - name: "Validate Terraform"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          terraform init
+          terraform workspace select ${{ inputs.terraform_workspace }}
+          terraform validate -no-color
+          terraform fmt -check -recursive
+
+      - name: "Apply Terraform"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          terraform init
+          terraform workspace select ${{ inputs.terraform_workspace }}
+          terraform apply -auto-approve
