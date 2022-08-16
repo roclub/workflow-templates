@@ -51,6 +51,7 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ inputs.terraform_version }}
+          cli_config_credentials_token: ${{ secrets.TERRAFORM_CLOUD_AUTH }}
 
       - name: "Validate Terraform"
         env:
@@ -58,7 +59,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           terraform init
-          terraform workspace select ${{ inputs.terraform_workspace }}
           terraform validate -no-color
           terraform fmt -check -recursive
 
