@@ -16,9 +16,6 @@ on:
         required: false
         type: string
         default: "."
-      terraform_workspace:
-        required: false
-        type: string
       AWS_REGION:
         required: false
         type: string
@@ -68,5 +65,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           terraform init
-          terraform workspace select ${{ inputs.terraform_workspace }}
           terraform apply -auto-approve
