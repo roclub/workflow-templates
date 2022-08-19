@@ -16,7 +16,7 @@ on:
         required: false
         type: string
         default: "."
-      AWS_REGION:
+      terraform_workspace:
         required: false
         type: string
 
@@ -27,11 +27,6 @@ jobs:
     defaults:
       run:
         working-directory: ${{ inputs.terraform_directory }}
-
-    env:
-      AWS_ACCESS_KEY_ID: ${{ inputs.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ inputs.AWS_REGION }}
 
     steps:
       - name: "Checkout Git repository"
@@ -50,19 +45,18 @@ jobs:
           terraform_version: ${{ inputs.terraform_version }}
           cli_config_credentials_token: ${{ secrets.TERRAFORM_CLOUD_AUTH }}
 
+      - name: "Select workspace"
+        run: |
+          mkdir .terraform
+          printf '%s' ${{ inputs.terraform_workspace }} > .terraform/environment
+
       - name: "Validate Terraform"
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           terraform init
           terraform validate -no-color
           terraform fmt -check -recursive
 
       - name: "Apply Terraform"
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           terraform init
           terraform apply -auto-approve
