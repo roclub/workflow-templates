@@ -47,7 +47,7 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ inputs.terraform_version }}
-          cli_config_credentials_token: ${{ secrets.TERRAFORM_CLOUD_AUTH }}
+          cli_config_credentials_token: 0EmE1nP7ql4HMg.atlasv1.BRziDNgdteChzPUvElZ6k3ZEcIpKF4riBJJzgyRE41EcXfaAkiD8LtQLPPqRrivWWt0
 
       - name: "Select workspace"
         run: |
