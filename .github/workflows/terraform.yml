@@ -19,6 +19,9 @@ on:
       terraform_workspace:
         required: false
         type: string
+      environment:
+        required: true
+        type: string
 
 jobs:
   terraform:
