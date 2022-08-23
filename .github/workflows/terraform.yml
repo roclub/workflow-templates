@@ -43,6 +43,13 @@ jobs:
           name: ${{ inputs.artifact_name }}
           path: ${{ inputs.artifact_target_directory }}
 
+      - name: "Download Artifacts"
+        if: ${{ inputs.artifact_name != '' }}
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: ${{ inputs.artifact_target_directory }}
+
       - name: "Install Terraform"
         uses: hashicorp/setup-terraform@v2
         with:
