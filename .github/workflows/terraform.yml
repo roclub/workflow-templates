@@ -79,7 +79,7 @@ jobs:
           TF_VAR_TAILSCALE_AUTH_KEY: ${{ secrets.TAILSCALE_AUTH_KEY }}
         run: |
           terraform init
-          terraform apply -auto-approve -target="${{ inputs.target }}"
+          terraform apply -auto-approve -target=${{ inputs.target }}
 
       - name: "Apply Terraform until end"
         if: ${{ inputs.artifact_name == '' }}
