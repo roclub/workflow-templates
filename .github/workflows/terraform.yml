@@ -70,7 +70,7 @@ jobs:
           terraform fmt -check -recursive
 
       - name: "Apply Terraform until target"
-        if: ${{ inputs.artifact_name != '' }}
+        if: ${{ inputs.target != '' }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -82,7 +82,7 @@ jobs:
           terraform apply -auto-approve -target=${{ inputs.target }}
 
       - name: "Apply Terraform until end"
-        if: ${{ inputs.artifact_name == '' }}
+        if: ${{ inputs.target == '' }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
