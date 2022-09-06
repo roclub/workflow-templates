@@ -64,6 +64,7 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           TF_VAR_ENVIRONMENT: ${{ inputs.terraform_workspace }}
           TF_VAR_TAILSCALE_AUTH_KEY: ${{ secrets.TAILSCALE_AUTH_KEY }}
+          TF_VAR_BUBBLE_CALLBACK_KEY: ${{ secrets.BUBBLE_CALLBACK_KEY }}
         run: |
           terraform init
           terraform validate -no-color
@@ -77,6 +78,7 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           TF_VAR_ENVIRONMENT: ${{ inputs.terraform_workspace }}
           TF_VAR_TAILSCALE_AUTH_KEY: ${{ secrets.TAILSCALE_AUTH_KEY }}
+          TF_VAR_BUBBLE_CALLBACK_KEY: ${{ secrets.BUBBLE_CALLBACK_KEY }}
         run: |
           terraform init
           terraform apply -auto-approve -target=${{ inputs.target }}
@@ -89,6 +91,7 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           TF_VAR_ENVIRONMENT: ${{ inputs.terraform_workspace }}
           TF_VAR_TAILSCALE_AUTH_KEY: ${{ secrets.TAILSCALE_AUTH_KEY }}
+          TF_VAR_BUBBLE_CALLBACK_KEY: ${{ secrets.BUBBLE_CALLBACK_KEY }}
         run: |
           terraform init
           terraform apply -auto-approve
