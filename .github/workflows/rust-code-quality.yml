@@ -72,7 +72,7 @@ jobs:
       - name: Install required system packages
         if: ${{ inputs.system_packages }} != ""
         run: |
-          sudo apt-get udpate && sudo apt-get ugprade -y
+          sudo apt-get update && sudo apt-get upgrade -y
           sudo apt-get install ${{ inputs.system_packages }} -y
           
       - name: Install Rust
