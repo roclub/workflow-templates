@@ -1,0 +1,93 @@
+name: Rust Code Quality
+
+on:
+  workflow_call:
+    inputs:
+      toolchain_version:
+        required: false
+        type: string
+        default: "stable"
+      system_packages:
+        required: false
+        type: string
+      
+jobs:
+
+  formatting:
+    name: Format Rust code base
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ inputs.toolchain_version }}
+          override: true
+          components: rustfmt
+
+      - name: Run rustfmt
+        uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check --verbose
+
+  linting:
+    name: Lint Rust Code base
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Lint Rust code base
+        uses: github/super-linter@v4
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          VALIDATE_RUST_CLIPPY: true
+          VALIDATE_DOCKERFILE_HADOLINT: true
+          DEFAULT_BRANCH: ${{ env.GITHUB_REF_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  testing:
+    name: Test Rust code base
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+  
+      - name: Install required system packages
+        if: ${{ inputs.system_packages }} != ""
+        run: |
+          sudo apt-get update && sudo apt-get upgrade -y
+          sudo apt-get install ${{ inputs.system_packages }} -y
+          
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ inputs.toolchain_version }}
+          override: true
+
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+
+      - name: Test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
