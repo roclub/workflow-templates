@@ -6,7 +6,11 @@ on:
       toolchain_version:
         required: false
         type: string
-
+        default: "stable"
+      system_packages:
+        required: false
+        type: string
+      
 jobs:
 
   formatting:
@@ -66,9 +70,10 @@ jobs:
           fetch-depth: 0
   
       - name: Install required system packages
+        if: ${{ inputs.system_packages }} != ""
         run: |
-          sudo apt-get install libusb-1.0 -y
-          env
+          sudo apt-get udpate && sudo apt-get ugprade -y
+          sudo apt-get install ${{ inputs.system_packages }} -y
           
       - name: Install Rust
         uses: actions-rs/toolchain@v1
