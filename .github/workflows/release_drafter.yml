@@ -1,0 +1,26 @@
+name: Create draft for new release
+
+on:
+  workflow_call:
+    outputs:
+      upload_url:
+        description: "The upload URL of the new release."
+        value: ${{ jobs.release.outputs.release_upload_url }}
+
+jobs:
+  
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_upload_url: ${{ steps.release_drafter.outputs.upload_url }}
+
+    steps:
+
+      - name: Create a draft for new release
+        id: release_drafter
+        uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
