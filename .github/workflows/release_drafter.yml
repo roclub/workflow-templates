@@ -3,7 +3,7 @@ name: Create draft for new release
 on:
   workflow_call:
     outputs:
-      upload_url:
+      release_upload_url:
         description: "The upload URL of the new release."
         value: ${{ jobs.release.outputs.release_upload_url }}
 
@@ -24,11 +24,3 @@ jobs:
         uses: release-drafter/release-drafter@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - run: echo ${{ steps.release_drafter.outputs.upload_url }}
-
-  job2:
-    runs-on: ubuntu-latest
-    needs: release
-    steps:
-      - run: echo ${{ needs.release.outputs.release_upload_url }}
