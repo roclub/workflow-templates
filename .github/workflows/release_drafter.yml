@@ -40,7 +40,7 @@ jobs:
       id: download_artifact
       with:
         name: ${{ inputs.artifact_name }}
-        path: artifacts/${{ inputs.artifact_name }}
+        path: artifacts/
 
     - uses: shogo82148/actions-upload-release-asset@v1
       name: Upload artifact to release
