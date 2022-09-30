@@ -2,6 +2,11 @@ name: Create draft for new release
 
 on:
   workflow_call:
+    inputs:
+      artifact_name:
+        description: "Name of the artifact to download."
+        type: string
+        required: true
     outputs:
       release_upload_url:
         description: "The upload URL of the new release."
@@ -9,7 +14,7 @@ on:
 
 jobs:
   
-  release:
+  create_draft_release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -24,3 +29,22 @@ jobs:
         uses: release-drafter/release-drafter@v5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  upload_artifacts_to_release:
+    runs-on: ubuntu-latest
+    needs: create_draft_release
+    steps:
+
+    - uses: actions/download-artifact@v3
+      name: Download artifact
+      id: download_artifact
+      with:
+        name: ${{ inputs.artifact_name }}
+        path: artifacts/${{ inputs.artifact_name }}
+
+    - uses: shogo82148/actions-upload-release-asset@v1
+      name: Upload artifact to release
+      id: upload_artifact_to_release
+      with:
+        upload_url: ${{ needs.create_draft_release.outputs.release_upload_url }}
+        asset_path: artifacts/${{ inputs.artifact_name }}
