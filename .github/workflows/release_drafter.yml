@@ -7,32 +7,12 @@ on:
         description: "Name of the artifact to download."
         type: string
         required: true
-    outputs:
-      release_upload_url:
-        description: "The upload URL of the new release."
-        value: ${{ jobs.release.outputs.release_upload_url }}
 
 jobs:
   
   create_draft_release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-    outputs:
-      release_upload_url: ${{ steps.release_drafter.outputs.upload_url }}
 
-    steps:
-
-      - name: Create a draft for new release
-        id: release_drafter
-        uses: release-drafter/release-drafter@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  upload_artifacts_to_release:
-    runs-on: ubuntu-latest
-    needs: create_draft_release
     steps:
 
     - uses: actions/download-artifact@v3
@@ -42,9 +22,8 @@ jobs:
         name: ${{ inputs.artifact_name }}
         path: artifacts/
 
-    - uses: shogo82148/actions-upload-release-asset@v1
-      name: Upload artifact to release
-      id: upload_artifact_to_release
+    - uses: ncipollo/release-action@v1
       with:
-        upload_url: ${{ needs.create_draft_release.outputs.release_upload_url }}
-        asset_path: artifacts/${{ inputs.artifact_name }}
+        generateReleaseNotes: true
+        artifacts: ${{ steps.download_artifact.outputs.download-path }}
+        token: ${{ secrets.GITHUB_TOKEN }}
