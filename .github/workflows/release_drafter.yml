@@ -20,7 +20,7 @@ jobs:
       id: download_artifact
       with:
         name: ${{ inputs.artifact_name }}
-        path: artifacts/
+        path: artifacts/test/
 
     - run: |
         ls -la ${{ steps.download_artifact.outputs.download-path }}/
