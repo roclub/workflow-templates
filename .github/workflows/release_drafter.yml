@@ -20,7 +20,7 @@ jobs:
       id: download_artifact
       with:
         name: ${{ inputs.artifact_name }}
-        path: artifacts/test/
+        path: artifacts/
 
     - run: |
         cd ${{ steps.download_artifact.outputs.download-path }}/
@@ -29,5 +29,5 @@ jobs:
     - uses: ncipollo/release-action@v1
       with:
         generateReleaseNotes: true
-        artifacts: "${{ steps.download_artifact.outputs.download-path }}/"
+        artifacts: "${{ steps.download_artifact.outputs.download-path }}/*"
         token: ${{ secrets.GITHUB_TOKEN }}
