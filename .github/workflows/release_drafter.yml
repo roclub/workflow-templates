@@ -23,11 +23,10 @@ jobs:
         path: artifacts/test/
 
     - run: |
-        ls -la ${{ steps.download_artifact.outputs.download-path }}/
+        cd ${{ steps.download_artifact.outputs.download-path }}/
+        ls | grep "^[a-z]" | xargs rm -rf
         echo "test1"
-        ls -la ${{ steps.download_artifact.outputs.download-path }}/${{ inputs.artifact_name }}/
-        echo "test"
-
+        ls -la
 
     - uses: ncipollo/release-action@v1
       with:
