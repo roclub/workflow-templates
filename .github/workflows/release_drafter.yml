@@ -25,5 +25,5 @@ jobs:
     - uses: ncipollo/release-action@v1
       with:
         generateReleaseNotes: true
-        artifacts: ${{ steps.download_artifact.outputs.download-path }}
+        artifacts: "${{ steps.download_artifact.outputs.download-path }}/${{ inputs.artifact_name }}"
         token: ${{ secrets.GITHUB_TOKEN }}
