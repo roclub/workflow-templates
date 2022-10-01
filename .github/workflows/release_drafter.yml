@@ -22,6 +22,11 @@ jobs:
         name: ${{ inputs.artifact_name }}
         path: artifacts/
 
+    - run: |
+        ls -la artifacts/edge-software-binaries
+        echo "test"
+        ls -la artifacts/edge-software-binaries/
+
     - uses: ncipollo/release-action@v1
       with:
         generateReleaseNotes: true
