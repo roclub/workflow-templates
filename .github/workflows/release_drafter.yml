@@ -23,7 +23,7 @@ jobs:
         path: artifacts/
 
     - run: |
-        ls -la artifacts/edge-software-binaries
+        ls -la artifacts/edge-software-binaries/
         echo "test"
         ls -la artifacts/edge-software-binaries/
 
