@@ -24,7 +24,7 @@ jobs:
 
     - run: |
         cd ${{ steps.download_artifact.outputs.download-path }}/
-        ls | grep "^[a-z]" | xargs rm -rf
+        ls | grep "^\." | xargs rm -rf
         echo "test1"
         ls -la
 
