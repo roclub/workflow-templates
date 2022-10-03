@@ -125,9 +125,9 @@ jobs:
       with:
         name: edge-software-binaries
         path: |
-          target/release/*
-          !target/release/*.d
-          !target/release/build
-          !target/release/deps
-          !target/release/examples
-          !target/release/incremental
+          target/armv7-unknown-linux-gnueabihf/release/*
+          !target/armv7-unknown-linux-gnueabihf/release/*.d
+          !target/armv7-unknown-linux-gnueabihf/release/build
+          !target/armv7-unknown-linux-gnueabihf/release/deps
+          !target/armv7-unknown-linux-gnueabihf/release/examples
+          !target/armv7-unknown-linux-gnueabihf/release/incremental
