@@ -100,7 +100,7 @@ jobs:
     name: Build Rust binaries and upload artifact
     if: ${{ inputs.build_and_upload }} == true
     needs: [ format, lint, test ]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v3
 
