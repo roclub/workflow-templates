@@ -114,10 +114,12 @@ jobs:
         sudo apt-get update && sudo apt-get upgrade -y
         sudo apt-get install ${{ inputs.system_packages }} -y
 
-    - uses: actions-rs/cargo@v1
+    - name: Build for cross-targets
+      uses: actions-rs/cargo@v1
       with:
+        use-cross: true
         command: build
-        args: --release --all-features
+        args: --target armv7-unknown-linux-gnueabihf --release
 
     - uses: actions/upload-artifact@v3
       with:
