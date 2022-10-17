@@ -1,4 +1,4 @@
-name: Rust Code Quality
+name: Rust format, lint, test (build and upload)
 
 on:
   workflow_call:
@@ -10,10 +10,14 @@ on:
       system_packages:
         required: false
         type: string
+      build_and_upload:
+        required: false
+        type: boolean
+        default: false
       
 jobs:
 
-  formatting:
+  format:
     name: Format Rust code base
     runs-on: ubuntu-latest
 
@@ -38,7 +42,7 @@ jobs:
           command: fmt
           args: --all -- --check --verbose
 
-  linting:
+  lint:
     name: Lint Rust Code base
     runs-on: ubuntu-latest
 
@@ -58,7 +62,7 @@ jobs:
           DEFAULT_BRANCH: ${{ env.GITHUB_REF_NAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  testing:
+  test:
     name: Test Rust code base
     runs-on: ubuntu-latest
 
@@ -91,3 +95,39 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
+
+  build_and_upload:
+    name: Build Rust binaries and upload artifact
+    if: ${{ inputs.build_and_upload }} == true
+    needs: [ format, lint, test ]
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        
+    - name: Install required system packages
+      if: ${{ inputs.system_packages }} != ""
+      run: |
+        sudo apt-get update && sudo apt-get upgrade -y
+        sudo apt-get install ${{ inputs.system_packages }} -y
+
+    - name: Build for cross-targets
+      uses: actions-rs/cargo@v1
+      with:
+        use-cross: true
+        command: build
+        args: --target armv7-unknown-linux-gnueabihf --release
+
+    - uses: actions/upload-artifact@v3
+      with:
+        name: edge-software-binaries
+        path: |
+          target/armv7-unknown-linux-gnueabihf/release/*
+          !target/armv7-unknown-linux-gnueabihf/release/*.d
+          !target/armv7-unknown-linux-gnueabihf/release/build
+          !target/armv7-unknown-linux-gnueabihf/release/deps
+          !target/armv7-unknown-linux-gnueabihf/release/examples
+          !target/armv7-unknown-linux-gnueabihf/release/incremental
