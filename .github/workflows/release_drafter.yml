@@ -1,0 +1,33 @@
+name: Create draft for new release
+
+on:
+  workflow_call:
+    inputs:
+      artifact_name:
+        description: "Name of the artifact to download."
+        type: string
+        required: true
+
+jobs:
+  
+  create_draft_release:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/download-artifact@v3
+      name: Download artifact
+      id: download_artifact
+      with:
+        name: ${{ inputs.artifact_name }}
+        path: artifacts/
+
+    - run: |
+        cd ${{ steps.download_artifact.outputs.download-path }}/
+        ls -la | grep -oE "\s\.[a-z\-_]+" | xargs rm -rf
+
+    - uses: ncipollo/release-action@v1
+      with:
+        generateReleaseNotes: true
+        artifacts: "${{ steps.download_artifact.outputs.download-path }}/*"
+        token: ${{ secrets.GITHUB_TOKEN }}
