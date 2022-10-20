@@ -6,6 +6,7 @@ However, by linting a README sample of the most starred GitHub repositories, we 
 ## Description
 Rescaling length of lines, headings, code blocks etc .
 ```json
+{
     "MD013": {
         "line_length": 400,
         "heading_line_length": 100,
@@ -17,16 +18,23 @@ Rescaling length of lines, headings, code blocks etc .
         "strict": false,
         "stern": false
       },
+}
 ```
 Enable to display shell commands without showing the output.
 ```json
+{
     "MD014": false,
+}
 ```
 Enable inline HTML.
 ```json
+{
     "MD033": false,
+}
 ```
 Code blocks do not necessarily need a specified language.
 ```json
+{
     "MD040": false
+}
 ```
