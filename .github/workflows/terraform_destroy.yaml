@@ -1,0 +1,55 @@
+name: Terraform destroy
+
+on:
+  workflow_call:
+    inputs:
+      terraform_version:
+        required: true
+        type: string
+      terraform_directory:
+        required: false
+        type: string
+        default: "."
+      terraform_workspace:
+        required: false
+        type: string
+      environment:
+        required: true
+        type: string
+
+jobs:
+  terraform_destroy:
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ${{ inputs.terraform_directory }}
+
+    steps:
+      - name: "Checkout Git repository"
+        uses: actions/checkout@v2
+
+      - name: "Install Terraform"
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+          cli_config_credentials_token: ${{ secrets.TERRAFORM_CLOUD_AUTH }}
+
+      - name: "Select workspace"
+        run: |
+          mkdir .terraform
+          printf '%s' ${{ inputs.terraform_workspace }} > .terraform/environment
+
+      - name: "Terraform destroy"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          TF_VAR_ENVIRONMENT: ${{ inputs.terraform_workspace }}
+          TF_VAR_TAILSCALE_AUTH_KEY: ${{ secrets.TAILSCALE_AUTH_KEY }}
+          TF_VAR_BUBBLE_CALLBACK_KEY: ${{ secrets.BUBBLE_CALLBACK_KEY }}
+          TF_VAR_SYSDIG_SECURE_API_TOKEN: ${{ secrets.SYSDIG_SECURE_API_TOKEN }}
+        run: |
+          terraform init
+          terraform destroy --auto-approve
