@@ -28,10 +28,10 @@ jobs:
 
     steps:
       - name: "Checkout Git repository"
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: "Install Terraform"
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ inputs.terraform_version }}
           cli_config_credentials_token: ${{ secrets.TERRAFORM_CLOUD_AUTH }}
