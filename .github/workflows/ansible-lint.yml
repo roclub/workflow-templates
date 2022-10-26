@@ -22,6 +22,7 @@ jobs:
           # Just validate ansible related files
           VALIDATE_ANSIBLE: true
           # Check every file starting at the root directory
+          DEFAULT_WORKSPACE: /
           ANSIBLE_DIRECTORY: .
           DEFAULT_BRANCH: ${{ env.GITHUB_REF_NAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
