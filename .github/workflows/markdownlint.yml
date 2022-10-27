@@ -1,0 +1,28 @@
+name: Markdown Lint
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          # Full git history is needed to get a proper
+          # list of changed files within `super-linter`
+          fetch-depth: 0
+
+      # Runs a single command using the runners shell
+      - name: Markdown Lint
+        # Uses the slim image to speed up build time
+        uses: github/super-linter/slim@v4
+        env:
+          # Only parse new or edited files
+          VALIDATE_ALL_CODEBASE: false
+          # Just validate for markdon files
+          VALIDATE_MARKDOWN: true
+          DEFAULT_BRANCH: ${{ env.GITHUB_REF_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
