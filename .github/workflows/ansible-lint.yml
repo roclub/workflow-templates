@@ -1,0 +1,28 @@
+name: Ansible Lint
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Ansible Lint
+        # Uses the slim image to speed up build time
+        uses: github/super-linter/slim@v4
+        env:
+          # Only parse new or edited files
+          VALIDATE_ALL_CODEBASE: false
+          # Just validate ansible related files
+          VALIDATE_ANSIBLE: true
+          # Check every file starting at the root directory
+          DEFAULT_WORKSPACE: ${{ env.GITHUB_WORKSPACE }}
+          ANSIBLE_DIRECTORY: .
+          DEFAULT_BRANCH: ${{ env.GITHUB_REF_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
