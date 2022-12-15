@@ -66,6 +66,8 @@ jobs:
           TF_VAR_TAILSCALE_AUTH_KEY: ${{ secrets.TAILSCALE_AUTH_KEY }}
           TF_VAR_BUBBLE_CALLBACK_KEY: ${{ secrets.BUBBLE_CALLBACK_KEY }}
           TF_VAR_SYSDIG_SECURE_API_TOKEN: ${{ secrets.SYSDIG_SECURE_API_TOKEN }}
+          TF_VAR_CONFLUENT_CLOUD_API_KEY: ${{ secrets.TF_VAR_CONFLUENT_CLOUD_API_KEY }}
+          TF_VAR_CONFLUENT_CLOUD_API_SECRET: ${{ secrets.TF_VAR_CONFLUENT_CLOUD_API_SECRET }}
         run: |
           terraform init
           terraform validate -no-color
@@ -81,6 +83,8 @@ jobs:
           TF_VAR_TAILSCALE_AUTH_KEY: ${{ secrets.TAILSCALE_AUTH_KEY }}
           TF_VAR_BUBBLE_CALLBACK_KEY: ${{ secrets.BUBBLE_CALLBACK_KEY }}
           TF_VAR_SYSDIG_SECURE_API_TOKEN: ${{ secrets.SYSDIG_SECURE_API_TOKEN }}
+          TF_VAR_CONFLUENT_CLOUD_API_KEY: ${{ secrets.TF_VAR_CONFLUENT_CLOUD_API_KEY }}
+          TF_VAR_CONFLUENT_CLOUD_API_SECRET: ${{ secrets.TF_VAR_CONFLUENT_CLOUD_API_SECRET }}
         run: |
           terraform init
           terraform apply -auto-approve -target=${{ inputs.target }}
@@ -95,6 +99,8 @@ jobs:
           TF_VAR_TAILSCALE_AUTH_KEY: ${{ secrets.TAILSCALE_AUTH_KEY }}
           TF_VAR_BUBBLE_CALLBACK_KEY: ${{ secrets.BUBBLE_CALLBACK_KEY }}
           TF_VAR_SYSDIG_SECURE_API_TOKEN: ${{ secrets.SYSDIG_SECURE_API_TOKEN }}
+          TF_VAR_CONFLUENT_CLOUD_API_KEY: ${{ secrets.TF_VAR_CONFLUENT_CLOUD_API_KEY }}
+          TF_VAR_CONFLUENT_CLOUD_API_SECRET: ${{ secrets.TF_VAR_CONFLUENT_CLOUD_API_SECRET }}
         run: |
           terraform init
           terraform apply -auto-approve
