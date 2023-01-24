@@ -60,7 +60,6 @@ jobs:
         uses: github/super-linter@v4
         env:
           VALIDATE_ALL_CODEBASE: false
-          VALIDATE_RUST_CLIPPY: false
           VALIDATE_DOCKERFILE_HADOLINT: true
           DEFAULT_BRANCH: ${{ env.GITHUB_REF_NAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
