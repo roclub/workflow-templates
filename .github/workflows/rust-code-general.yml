@@ -10,6 +10,9 @@ on:
       system_packages:
         required: false
         type: string
+      ghcr_password:
+        required: true
+        type: string
       target:
         required: true
         type: string
@@ -69,7 +72,7 @@ jobs:
         with:
           registry: ghcr.io
           username: framtale
-          password: ${{ secrets.GHCR_PASSWORD }}
+          password: ${{ inputs.ghcr_password }}
 
       - name: Clippy check
         uses: actions-rs/clippy-check@v1
@@ -107,7 +110,7 @@ jobs:
         with:
           registry: ghcr.io
           username: framtale
-          password: ${{ secrets.GHCR_PASSWORD }}
+          password: ${{ inputs.ghcr_password }}
 
       - name: Build
         uses: actions-rs/cargo@v1
@@ -146,7 +149,7 @@ jobs:
       with:
         registry: ghcr.io
         username: framtale
-        password: ${{ secrets.GHCR_PASSWORD }}
+        password: ${{ inputs.ghcr_password }}
 
 
     - name: Build for cross-targets
