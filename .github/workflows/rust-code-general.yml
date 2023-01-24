@@ -65,11 +65,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: framtale
-          password: ${{ secrets.GHCR_PASSWORD }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Clippy check
         uses: actions-rs/clippy-check@v1
@@ -103,11 +103,11 @@ jobs:
           override: true
 
       - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: framtale
-          password: ${{ secrets.GHCR_PASSWORD }}      
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
         uses: actions-rs/cargo@v1
@@ -140,6 +140,14 @@ jobs:
       run: |
         sudo apt-get update && sudo apt-get upgrade -y
         sudo apt-get install ${{ inputs.system_packages }} -y
+
+    - name: Log in to the Container registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
 
     - name: Build for cross-targets
       uses: actions-rs/cargo@v1
