@@ -10,6 +10,9 @@ on:
       system_packages:
         required: false
         type: string
+      target:
+        required: true
+        type: string
       build_and_upload:
         required: false
         type: boolean
@@ -57,10 +60,24 @@ jobs:
         uses: github/super-linter@v4
         env:
           VALIDATE_ALL_CODEBASE: false
-          VALIDATE_RUST_CLIPPY: true
+          VALIDATE_RUST_CLIPPY: false
           VALIDATE_DOCKERFILE_HADOLINT: true
           DEFAULT_BRANCH: ${{ env.GITHUB_REF_NAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ghcr.io
+          username: framtale
+          password: ${{ secrets.GHCR_PASSWORD }}
+
+      - name: Clippy check
+        uses: actions-rs/clippy-check@v1
+        with:
+         token:  ${{ secrets.GITHUB_TOKEN }}
+         use-cross: true
+         args: --target ${{ inputs.target }}
 
   test:
     name: Test Rust code base
@@ -86,15 +103,26 @@ jobs:
           toolchain: ${{ inputs.toolchain_version }}
           override: true
 
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ghcr.io
+          username: framtale
+          password: ${{ secrets.GHCR_PASSWORD }}      
+
       - name: Build
         uses: actions-rs/cargo@v1
         with:
+          use-cross: true
           command: build
+          args: --target ${{ inputs.target }}
 
       - name: Test
         uses: actions-rs/cargo@v1
         with:
+          use-cross: true
           command: test
+          args: --target ${{ inputs.target }}
 
   build_and_upload:
     name: Build Rust binaries and upload artifact
