@@ -17,6 +17,9 @@ on:
         required: false
         type: boolean
         default: false
+      build_base_image:
+        required: false
+        type: string
       
 jobs:
 
@@ -71,6 +74,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Docker Pull Base Image
+        run: |
+          docker pull ${{ inputs.build_base_image }}
+
       - uses: actions-rs/toolchain@v1
         with:
             toolchain: nightly
@@ -115,6 +122,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Docker Pull Base Image
+        run: |
+          docker pull ${{ inputs.build_base_image }}
+
       - name: Build
         uses: actions-rs/cargo@v1
         with:
@@ -154,6 +165,9 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Docker Pull Base Image
+      run: |
+        docker pull ${{ inputs.build_base_image }}
 
     - name: Build for cross-targets
       uses: actions-rs/cargo@v1
