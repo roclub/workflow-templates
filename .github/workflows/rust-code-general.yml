@@ -10,9 +10,6 @@ on:
       system_packages:
         required: false
         type: string
-      ghcr_password:
-        required: true
-        type: string
       target:
         required: true
         type: string
@@ -71,8 +68,8 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: framtale
-          password: ${{ inputs.ghcr_password }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -115,8 +112,8 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: framtale
-          password: ${{ inputs.ghcr_password }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build
         uses: actions-rs/cargo@v1
@@ -154,8 +151,8 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: ghcr.io
-        username: framtale
-        password: ${{ inputs.ghcr_password }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
 
     - name: Build for cross-targets
