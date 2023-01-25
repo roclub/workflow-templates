@@ -71,6 +71,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Docker Pull
+        run: |
+          docker pull base-images-rust-cross-armv7-unknown-linux-gnueabihf:latest
+
       - uses: actions-rs/toolchain@v1
         with:
             toolchain: nightly
