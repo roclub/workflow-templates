@@ -17,6 +17,9 @@ on:
         required: false
         type: boolean
         default: false
+      build_base_image:
+        required: false
+        type: string
       
 jobs:
 
@@ -73,7 +76,7 @@ jobs:
 
       - name: Docker Pull Base Image
         run: |
-          docker pull ghcr.io/roclub/base-images-rust-cross-armv7-unknown-linux-gnueabihf:latest
+          docker pull ${{ inputs.build_base_image }}
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -121,7 +124,7 @@ jobs:
 
       - name: Docker Pull Base Image
         run: |
-          docker pull ghcr.io/roclub/base-images-rust-cross-armv7-unknown-linux-gnueabihf:latest
+          docker pull ${{ inputs.build_base_image }}
 
       - name: Build
         uses: actions-rs/cargo@v1
@@ -164,7 +167,7 @@ jobs:
 
     - name: Docker Pull Base Image
       run: |
-        docker pull ghcr.io/roclub/base-images-rust-cross-armv7-unknown-linux-gnueabihf:latest
+        docker pull ${{ inputs.build_base_image }}
 
     - name: Build for cross-targets
       uses: actions-rs/cargo@v1
