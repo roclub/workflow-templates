@@ -73,7 +73,7 @@ jobs:
 
       - name: Docker Pull
         run: |
-          docker pull base-images-rust-cross-armv7-unknown-linux-gnueabihf:latest
+          docker pull ghcr.io/roclub/base-images-rust-cross-armv7-unknown-linux-gnueabihf:latest
 
       - uses: actions-rs/toolchain@v1
         with:
