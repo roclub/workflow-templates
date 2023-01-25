@@ -71,7 +71,7 @@ jobs:
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_PASSWORD }}
 
-      - name: Docker Pull
+      - name: Docker Pull Base Image
         run: |
           docker pull ghcr.io/roclub/base-images-rust-cross-armv7-unknown-linux-gnueabihf:latest
 
@@ -119,6 +119,10 @@ jobs:
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Docker Pull Base Image
+        run: |
+          docker pull ghcr.io/roclub/base-images-rust-cross-armv7-unknown-linux-gnueabihf:latest
+
       - name: Build
         uses: actions-rs/cargo@v1
         with:
@@ -158,6 +162,9 @@ jobs:
         username: ${{ secrets.GHCR_USERNAME }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Docker Pull Base Image
+      run: |
+        docker pull ghcr.io/roclub/base-images-rust-cross-armv7-unknown-linux-gnueabihf:latest
 
     - name: Build for cross-targets
       uses: actions-rs/cargo@v1
