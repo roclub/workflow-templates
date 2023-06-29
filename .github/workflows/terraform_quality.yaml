@@ -7,6 +7,10 @@ on:
         required: true
         type: string
 
+permissions:
+  contents: read            # git permissions to repo pull/push
+  statuses: write           # read/write to repo custom statuses and checks  
+
 jobs:
   code_qualtity:
 
