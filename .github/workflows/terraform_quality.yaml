@@ -20,6 +20,9 @@ jobs:
         with:
           terraform_version: ${{ inputs.terraform_version }}
 
+      - name: Install Terraform Linter
+        run: curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+
       - name: Check for Formatting Errors
         run: terraform fmt -check -recursive
 
