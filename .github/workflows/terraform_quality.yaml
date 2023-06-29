@@ -1,0 +1,27 @@
+name: Terraform Code Qualtity
+
+on:
+  workflow_call:
+    inputs:
+      terraform_version:
+        required: true
+        type: string
+
+jobs:
+  code_qualtity:
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+
+      - name: Check for Formatting Errors
+        run: terraform fmt -check -recursive
+
+      - name: Check for Linting Errors
+        run: tflint -c .github/linters/.tflint.hcl --recursive
