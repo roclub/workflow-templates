@@ -1,0 +1,46 @@
+name: Terraform Code Qualtity
+
+on:
+  workflow_call:
+    inputs:
+      terraform_version:
+        required: true
+        type: string
+      tflint_version:
+        required: false
+        type: string
+        default: latest
+      tflint_config_path:
+        required: false
+        type: string
+        default: ".github/linters/.tflint.hcl"
+
+permissions:
+  contents: read            # git permissions to repo pull/push
+  statuses: write           # read/write to repo custom statuses and checks  
+
+jobs:
+  code_qualtity:
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+
+      - uses: terraform-linters/setup-tflint@v3
+        name: Setup TFLint
+        with:
+          tflint_version: ${{ inputs.tflint_version }}
+
+      - name: Check for Formatting Errors
+        run: terraform fmt -check -recursive
+
+      - name: Check for Linting Errors
+        run: |
+          tflint --init
+          tflint -c ${{ inputs.tflint_config_path }} --recursive
