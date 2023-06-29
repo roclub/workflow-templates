@@ -6,6 +6,14 @@ on:
       terraform_version:
         required: true
         type: string
+      tflint_version:
+        required: false
+        type: string
+        default: latest
+      tflint_config_path:
+        required: true
+        type: string
+        default: ".github/linters/.tflint.hcl"
 
 permissions:
   contents: read            # git permissions to repo pull/push
@@ -24,11 +32,15 @@ jobs:
         with:
           terraform_version: ${{ inputs.terraform_version }}
 
-      - name: Install Terraform Linter
-        run: curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+      - uses: terraform-linters/setup-tflint@v3
+        name: Setup TFLint
+        with:
+          tflint_version: ${{ inputs.tflint_version }}
 
       - name: Check for Formatting Errors
         run: terraform fmt -check -recursive
 
       - name: Check for Linting Errors
-        run: tflint -c .github/linters/.tflint.hcl --recursive
+        run: |
+          tflint --init
+          tflint -c ${{ inputs.tflint_config_path }} --recursive
