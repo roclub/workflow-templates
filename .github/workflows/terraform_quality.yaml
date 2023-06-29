@@ -11,7 +11,7 @@ on:
         type: string
         default: latest
       tflint_config_path:
-        required: true
+        required: false
         type: string
         default: ".github/linters/.tflint.hcl"
 
