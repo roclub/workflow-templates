@@ -43,5 +43,6 @@ jobs:
       - name: Check for Linting Errors
         run: |
           ls -la .github/linters
+          cat .github/linters/.tflint.hcl
           tflint --init
           tflint -c ${{ inputs.tflint_config_path }} --recursive
