@@ -26,6 +26,9 @@ on:
         required: false
         type: string
 
+env:
+  AWS_DEFAULT_REGION: eu-central-1
+
 jobs:
   terraform:
     environment: ${{ inputs.environment }}
