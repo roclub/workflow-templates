@@ -46,6 +46,12 @@ jobs:
           name: ${{ inputs.artifact_name }}
           path: ${{ inputs.artifact_target_directory }}
 
+      - name: 'Install Specific Version of AWS CLI'
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.12.6.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          ./aws/install
+
       - name: "Install Terraform"
         uses: hashicorp/setup-terraform@v2
         with:
