@@ -50,7 +50,7 @@ jobs:
         run: |
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.12.6.zip" -o "awscliv2.zip"
           unzip awscliv2.zip
-          ./aws/install
+          ./aws/install --update
 
       - name: "Install Terraform"
         uses: hashicorp/setup-terraform@v2
