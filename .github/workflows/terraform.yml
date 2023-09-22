@@ -77,6 +77,8 @@ jobs:
           TF_VAR_SYSDIG_SECURE_API_TOKEN: ${{ secrets.SYSDIG_SECURE_API_TOKEN }}
           TF_VAR_CONFLUENT_CLOUD_API_KEY: ${{ secrets.TF_VAR_CONFLUENT_CLOUD_API_KEY }}
           TF_VAR_CONFLUENT_CLOUD_API_SECRET: ${{ secrets.TF_VAR_CONFLUENT_CLOUD_API_SECRET }}
+          TF_VAR_MONDAY_AUTH: ${{ secrets.MONDAY_AUTH }}
+          TF_VAR_POWERFLOW_MAIL_AUTH: ${{ secrets.POWERFLOW_MAIL_AUTH }}
         run: |
           terraform init
           terraform validate -no-color
@@ -94,6 +96,8 @@ jobs:
           TF_VAR_SYSDIG_SECURE_API_TOKEN: ${{ secrets.SYSDIG_SECURE_API_TOKEN }}
           TF_VAR_CONFLUENT_CLOUD_API_KEY: ${{ secrets.TF_VAR_CONFLUENT_CLOUD_API_KEY }}
           TF_VAR_CONFLUENT_CLOUD_API_SECRET: ${{ secrets.TF_VAR_CONFLUENT_CLOUD_API_SECRET }}
+          TF_VAR_MONDAY_AUTH: ${{ secrets.MONDAY_AUTH }}
+          TF_VAR_POWERFLOW_MAIL_AUTH: ${{ secrets.POWERFLOW_MAIL_AUTH }}
         run: |
           terraform init
           terraform apply -auto-approve -target=${{ inputs.target }}
@@ -110,6 +114,8 @@ jobs:
           TF_VAR_SYSDIG_SECURE_API_TOKEN: ${{ secrets.SYSDIG_SECURE_API_TOKEN }}
           TF_VAR_CONFLUENT_CLOUD_API_KEY: ${{ secrets.TF_VAR_CONFLUENT_CLOUD_API_KEY }}
           TF_VAR_CONFLUENT_CLOUD_API_SECRET: ${{ secrets.TF_VAR_CONFLUENT_CLOUD_API_SECRET }}
+          TF_VAR_MONDAY_AUTH: ${{ secrets.MONDAY_AUTH }}
+          TF_VAR_POWERFLOW_MAIL_AUTH: ${{ secrets.POWERFLOW_MAIL_AUTH }}
         run: |
           terraform init
           terraform apply -auto-approve
