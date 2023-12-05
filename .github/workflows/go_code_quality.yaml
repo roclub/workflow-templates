@@ -1,17 +1,7 @@
 name: Golang Code Quality
 
 on:
-  push:
-    branches:
-      - refactoring/*
-      - ref/*
-      - feature/*
-      - feat/*
-      - bugfix/*
-      - hotfix/*
-      - fix/*      
-      - development/*
-      - dev/*
+  workflow_call:
 
 permissions:
   contents: write
