@@ -23,7 +23,6 @@ jobs:
 
       - name: Install required packages
         run: |
-          sudo apt-get upgrade && sudo apt-get update -y
           sudo apt-get install -y make gcc pkg-config
           
       - name: Install required package
