@@ -19,14 +19,12 @@ jobs:
 
       - name: Install required packages
         run: |
-          - make
-          - gcc
-          - pkg-config
-          - gstreamer1.0-tools
-          - gstreamer1.0-plugins-good
-          - gstreamer1.0-plugins-ugly
-          - libgstreamer1.0-dev 
-          - libgstreamer-plugins-base1.0-dev
+          apt install -y make gcc pkg-config \
+            gstreamer1.0-tools \
+            gstreamer1.0-plugins-good \ 
+            gstreamer1.0-plugins-ugly \
+            libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev
 
       - name: Set up Go
         uses: actions/setup-go@v4
