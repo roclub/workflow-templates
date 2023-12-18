@@ -20,7 +20,11 @@ jobs:
       - name: Install required packages
         run: |
           sudo apt-get upgrade && sudo apt-get update -y
-          sudo apt-get install -y make gcc pkg-config \
+          sudo apt-get install -y make gcc pkg-config
+          
+      - name: Install required package
+        run: |
+          apt-get install -y \
             gstreamer1.0-tools \
             gstreamer1.0-plugins-good \ 
             gstreamer1.0-plugins-ugly \
