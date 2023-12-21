@@ -3,14 +3,10 @@ name: release-please
 on:
   workflow_call:
     inputs:
-      toolchain_version:
+      artifact_name:
         required: false
         type: string
-        default: "stable"
-    outputs:
-      release_upload_url:
-        description: "The URL of the releae to upload artifacts to."
-        value: ${{ jobs.release_please.outputs.release_upload_url }}
+        default: ""
 
 permissions:
   contents: write
@@ -20,7 +16,16 @@ jobs:
   release_please:
     runs-on: ubuntu-latest
     steps:
-      - uses: google-github-actions/release-please-action@v4
+
+      - name: Download Artifacts
+        if: ${{ inputs.artifact_name }} != "" 
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: artifacts/${{ inputs.artifact_name }}/
+       
+      - name: Create Release
+        uses: google-github-actions/release-please-action@v4
         id: release_please
         with:
           # this assumes that you have created a personal access token
@@ -30,5 +35,9 @@ jobs:
           # this is a built-in strategy in release-please, see "Action Inputs"
           # for more options
           release-type: simple
-    outputs:
-      release_upload_url: ${{ steps.replease_please.outputs.upload_url }}
+
+      - name: Upload Release Artifact
+        if: ${{ steps.release_please.outputs.release_created }} && ${{ inputs.artifact_name }} != "" 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ steps.release.outputs.tag_name }} ./artifact/${{ inputs.artifact_name }}/*
