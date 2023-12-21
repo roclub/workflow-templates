@@ -1,8 +1,16 @@
 name: release-please
+
 on:
-  push:
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      toolchain_version:
+        required: false
+        type: string
+        default: "stable"
+    outputs:
+      release_upload_url:
+        description: "The URL of the releae to upload artifacts to."
+        value: ${{ jobs.release_please.outputs.release_upload_url }}
 
 permissions:
   contents: write
