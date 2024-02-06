@@ -27,7 +27,10 @@ jobs:
       - name: Check for Formatting Errors
         run: terraform fmt -check -recursive
 
+      # The config file needs to be copied into the root, you cannot specify a path to the
+      # config, just change the name.
       - name: Check for Linting Errors
         run: |
+          cp .github/linters/.tflint.hcl .
           tflint --init
-          tflint -c ".github/linters/.tflint.hcl" --recursive
+          tflint --recursive
