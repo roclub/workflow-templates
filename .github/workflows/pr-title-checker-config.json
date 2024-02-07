@@ -4,7 +4,7 @@
     "color": "FF0000"
   },
   "CHECKS": {
-    "prefixes": ["fix:", "feat:","chore:","docs:","perf:","test:"]
+    "prefixes": ["fix:","feat:","chore:","docs:","perf:","test:"]
   },
   "MESSAGES": {
     "success": "PR title approved",
