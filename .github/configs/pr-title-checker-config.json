@@ -1,0 +1,14 @@
+{
+  "LABEL": {
+    "name": "PR title non-compliant",
+    "color": "FF0000"
+  },
+  "CHECKS": {
+    "prefixes": ["fix:","feat:","chore:","docs:","perf:","test:","refactor:"]
+  },
+  "MESSAGES": {
+    "success": "PR title approved",
+    "failure": "PR title non-compliant",
+    "notice": ""
+  }
+}
