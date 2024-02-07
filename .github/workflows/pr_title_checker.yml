@@ -23,17 +23,17 @@ jobs:
       - name: Pull File
         run: |
           # locally clones remote repo to runner
-          git clone https://${{ secrets.PULL_FROM_OTHER_REPOSITORIES }}@github.com/roclub/remoterepo.git source-repo
+          git clone https://${{ secrets.PULL_FROM_OTHER_REPOSITORIES }}@github.com/roclub/workflow-templates.git source-repo
           cd source-repo
           # Specify the files you want to pull
-          cp -u pr-title-checker-config.json ../
+          cp -u .github/configs/pr-title-checker-config.json ../
     
       - name: Check PR title
         uses: thehanimo/pr-title-checker@v1.4.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           pass_on_octokit_error: false
-          local_configuration_path: pr-title-checker-config.json
+          local_configuration_path: .github/configs/pr-title-checker-config.json
 
       - name: Comment on PR
         if: failure()
