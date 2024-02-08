@@ -1,6 +1,6 @@
 name: "PR Title Checker"
 on:
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - edited
@@ -26,7 +26,7 @@ jobs:
           git clone https://${{ secrets.PULL_FROM_OTHER_REPOSITORIES }}@github.com/roclub/workflow-templates.git source-repo
           cd source-repo
           # Specify the files you want to pull and copy them to a file folder to maintain the original structure
-          cp -u .github/configs/pr-title-checker-config.json ../../.github/configs/
+          cp -u .github/configs/pr-title-checker-config.json ../.github/configs/
     
       - name: Check PR title
         uses: thehanimo/pr-title-checker@v1.4.1
