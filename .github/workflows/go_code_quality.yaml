@@ -1,6 +1,10 @@
 name: Golang Code Quality
 
 on:
+  push:
+    paths:
+      - '**.go'
+      - 'go.mod'
   pull_request:
     types: [opened, reopened]
 
