@@ -100,7 +100,6 @@ linters:
     - grouper
     - importas
     - interfacebloat
-    - ireturn
     - loggercheck
     - maintidx
     - makezero
