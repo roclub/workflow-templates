@@ -2,9 +2,11 @@ name: Add PR to Project
 on:
   pull_request:
     types: [opened]
+    branches:
+      - main
 
 jobs:
-  add-to-project:
+  add_pr_to_project:
     runs-on: ubuntu-latest
     steps:
       - name: Add PR to project
