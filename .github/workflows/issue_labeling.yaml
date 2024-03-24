@@ -34,4 +34,4 @@ jobs:
 
             1. Accept Triage: Please add the tag triage/accepted to indicate that you've reviewed and accepted the triage for this issue.
 
-            2. Provide Time Estimation: Kindly estimate the time required to address this issue and add a corresponding tag such as time/XL (Extra Large), time/L (Large), time/M (Medium), or time/S (Small) to indicate its scale. This will assist us in planning and allocating resources effectively. For example, time/XL for Extr
+            2. Provide Time Estimation: Kindly estimate the time required to address this issue and add a corresponding tag such as time/XL (Extra Large) or time/S (Small) to indicate its scale. This will assist us in planning and allocating resources effectively.
