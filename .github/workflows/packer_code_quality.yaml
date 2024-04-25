@@ -1,0 +1,24 @@
+name: Packer Code Qualtity
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+permissions:
+  contents: read            # git permissions to repo pull/push
+  statuses: write           # read/write to repo custom statuses and checks  
+
+jobs:
+  code_qualtity:
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Install Terraform
+        uses: hashicorp/setup-packer@v3.0.0
+
+      - name: Run `packer validate`
+        id: validate
+        run: "packer validate ${{ inputs.packer_config_path }}"
