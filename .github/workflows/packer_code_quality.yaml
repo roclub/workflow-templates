@@ -1,8 +1,25 @@
 name: Packer Code Qualtity
 
 on:
-  pull_request:
-    types: [opened, reopened]
+  workflow_call:
+    inputs:
+      toolchain_version:
+        required: false
+        type: string
+        default: "stable"
+      system_packages:
+        required: false
+        type: string
+      target:
+        required: true
+        type: string
+      build_and_upload:
+        required: false
+        type: boolean
+        default: false
+      build_base_image:
+        required: false
+        type: string
 
 permissions:
   contents: read            # git permissions to repo pull/push
