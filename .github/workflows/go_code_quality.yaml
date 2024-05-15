@@ -51,4 +51,4 @@ jobs:
         with:
           version: "v1.55.2"
           install-mode: "goinstall"
-          args: '--config=".github/linters/.golangci.yaml"'
+          args: '--config=".github/linters/.golangci.yaml" --timeout 60m'
