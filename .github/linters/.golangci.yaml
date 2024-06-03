@@ -88,10 +88,10 @@ linters:
     - goconst
     - gocritic
     - gocyclo
-    - goerr113
+    - err113
     - goheader
     - gofmt
-    - gomnd
+    - mnd
     - gomoddirectives
     - goprintffuncname
     - gosec
