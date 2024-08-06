@@ -1,5 +1,8 @@
 name: Golang Code Quality
 
+env:
+  GO_VERSION: '1.21.3'
+
 on:
   push:
     paths:
@@ -12,12 +15,12 @@ permissions:
   contents: write
 
 jobs:
-  code_qualtity:
+  code_qualitity:
 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           fetch-depth: '1'
 
@@ -43,7 +46,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.21.3'
+          go-version: ${{ env.GO_VERSION }}
           cache: false
 
       - name: golangci-lint
@@ -52,3 +55,18 @@ jobs:
           version: "v1.58.1"
           install-mode: "goinstall"
           args: '--config=".github/linters/.golangci.yaml" --timeout 60m'
+
+  govulncheck:
+    runs-on: ubuntu-latest
+    name: Run govulncheck
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          fetch-depth: '1'
+
+      - id: govulncheck
+        uses: golang/govulncheck-action@dd0578b371c987f96d1185abb54344b44352bd58 # v1.0.3
+        with:
+          go-version-input: ${{ env.GO_VERSION }}
+          go-package: ./...
