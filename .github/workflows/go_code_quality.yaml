@@ -42,7 +42,6 @@ jobs:
             libgstreamer1.0-dev \
             libgstreamer-plugins-base1.0-dev
 
-
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
@@ -64,6 +63,24 @@ jobs:
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           fetch-depth: '1'
+
+      - name: Install required packages
+        run: |
+          sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main universe restricted multiverse"
+
+      - name: Install required packages
+        run: |
+          sudo apt-get install -y make gcc pkg-config libunwind-dev
+          
+      - name: Install required package
+        run: |
+          sudo apt-get install -y -f \
+            gstreamer1.0-tools \
+            gstreamer1.0-plugins-good \
+            gstreamer1.0-plugins-ugly \
+            gstreamer1.0-plugins-base \
+            libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev
 
       - id: govulncheck
         uses: golang/govulncheck-action@dd0578b371c987f96d1185abb54344b44352bd58 # v1.0.3
