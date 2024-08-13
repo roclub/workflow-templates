@@ -1,0 +1,44 @@
+name: Sec - govulncheck
+
+env:
+  GO_VERSION: '1.21.3'
+
+on:
+  push:
+    paths:
+      - '**.go'
+      - 'go.mod'
+  pull_request:
+    types: [opened, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  sec_govulncheck:
+    runs-on: ubuntu-latest
+    name: Run govulncheck
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          fetch-depth: '1'
+
+      - name: Install required packages
+        run: |
+          sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main universe restricted multiverse"
+          sudo apt-get update
+          sudo apt-get install -y make gcc pkg-config libunwind-dev
+          sudo apt-get install -y -f \
+            gstreamer1.0-tools \
+            gstreamer1.0-plugins-good \
+            gstreamer1.0-plugins-ugly \
+            gstreamer1.0-plugins-base \
+            libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev
+
+      - name: Run govulncheck
+        uses: golang/govulncheck-action@dd0578b371c987f96d1185abb54344b44352bd58 # v1.0.3
+        with:
+          go-version-input: ${{ env.GO_VERSION }}
+          go-package: ./...
