@@ -1,4 +1,4 @@
-name: Golang Code Quality
+name: Sec - govulncheck
 
 env:
   GO_VERSION: '1.21.3'
@@ -15,18 +15,17 @@ permissions:
   contents: write
 
 jobs:
-  code_qualitity:
-
+  sec_govulncheck:
     runs-on: ubuntu-latest
+    name: Run govulncheck
     steps:
       - name: Checkout Repository
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           fetch-depth: '1'
 
-      - name: Setup and Install Required Packages
+      - name: Install required packages
         run: |
-          # Add repository
           sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main universe restricted multiverse"
           sudo apt-get update
           sudo apt-get install -y make gcc pkg-config libunwind-dev
@@ -38,15 +37,8 @@ jobs:
             libgstreamer1.0-dev \
             libgstreamer-plugins-base1.0-dev
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
+      - name: Run govulncheck
+        uses: golang/govulncheck-action@dd0578b371c987f96d1185abb54344b44352bd58 # v1.0.3
         with:
-          go-version: ${{ env.GO_VERSION }}
-          cache: false
-
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@c675eb70db3aa26b496bc4e64da320480338d41b # v3.0.0
-        with:
-          version: "v1.58.1"
-          install-mode: "goinstall"
-          args: '--config=".github/linters/.golangci.yaml" --timeout 60m'
+          go-version-input: ${{ env.GO_VERSION }}
+          go-package: ./...
