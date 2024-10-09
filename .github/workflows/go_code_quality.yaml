@@ -6,6 +6,10 @@ env:
 
 on:
   pull_request:
+    types:
+      - opened
+      - review_requested
+      - synchronize
     paths:
       - '**.go'
       - 'go.mod'
