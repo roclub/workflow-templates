@@ -5,12 +5,15 @@ env:
   GOLANGCI_LINT_VERSION: ${{ vars.GOLANGCI_LINT_VERSION }}
 
 on:
-  push:
+  pull_request:
+    types:
+      - opened
+      - review_requested
+      - synchronize
     paths:
       - '**.go'
       - 'go.mod'
-  pull_request:
-
+      
 permissions:
   contents: read
   pull-requests: read
