@@ -24,9 +24,9 @@ jobs:
         run: |
           # locally clones remote repo to runner
           git clone https://${{ secrets.PULL_FROM_OTHER_REPOSITORIES }}@github.com/roclub/workflow-templates.git source-repo
-          mkdir -p .github/configs/
           # Specify the files you want to pull and copy them to a file folder to maintain the original structure
-          cp -u .github/configs/pr-title-checker-config.json ../.github/configs/
+          mkdir -p .github/configs/
+          cp -u source-repo/.github/configs/pr-title-checker-config.json .github/configs/
     
       - name: Check PR title
         uses: thehanimo/pr-title-checker@v1.4.1
