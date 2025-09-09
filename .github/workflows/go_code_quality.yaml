@@ -32,7 +32,7 @@ jobs:
           # Add repository
           sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main universe restricted multiverse"
           sudo apt-get update
-          sudo apt-get install -y make gcc pkg-config libunwind-dev
+          sudo apt-get install -y make gcc pkg-config libunwind-dev libsystemd-dev
           sudo apt-get install -y -f \
             gstreamer1.0-tools \
             gstreamer1.0-plugins-good \
