@@ -69,11 +69,11 @@ jobs:
                     "name": "Ready for QA"
                   }
                 },
-                "Type of Testing": {
-                  "select": {
-                    "name": "Internal Testing"
-                  }
-                },
+                "Type of testing": {
+                  "multi_select": [
+                    { "name": "Internal Testing" }
+                  ]
+                }
               }
             }')
           HTTP_CODE=$(echo "$RESPONSE" | tail -1)
