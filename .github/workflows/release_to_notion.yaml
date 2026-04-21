@@ -15,6 +15,10 @@ on:
         description: "URL of the GitHub release"
         required: true
         type: string
+      release_type:
+        description: "Type of release: major, minor, or patch"
+        required: true
+        type: string
 
 jobs:
   notion_release_entry:
@@ -25,13 +29,19 @@ jobs:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
         run: |
+          if [ "${{ inputs.release_type }}" = "patch" ]; then
+            TEMPLATE_ID="31b805481db08081a918d9abac7a8eb1"
+          else
+            TEMPLATE_ID="2a9805481db0806fa5f5ee6333c8f5af"
+          fi
+
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST https://api.notion.com/v1/pages \
             -H "Authorization: Bearer $NOTION_TOKEN" \
             -H "Content-Type: application/json" \
             -H "Notion-Version: 2022-06-28" \
             -d '{
               "parent": { "database_id": "'"$NOTION_DATABASE_ID"'" },
-              "template": { "type": "template_id", "template_id": "2a9805481db0806fa5f5ee6333c8f5af" },
+              "template": { "type": "template_id", "template_id": "'"$TEMPLATE_ID"'" },
               "properties": {
                 "Change": {
                   "title": [
