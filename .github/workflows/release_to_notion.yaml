@@ -21,13 +21,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create Notion entry
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
         run: |
-          curl -s -X POST https://api.notion.com/v1/pages \
-            -H "Authorization: Bearer ${{ secrets.NOTION_TOKEN }}" \
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST https://api.notion.com/v1/pages \
+            -H "Authorization: Bearer $NOTION_TOKEN" \
             -H "Content-Type: application/json" \
             -H "Notion-Version: 2022-06-28" \
             -d '{
-              "parent": { "database_id": "${{ secrets.NOTION_DATABASE_ID }}" },
+              "parent": { "database_id": "'"$NOTION_DATABASE_ID"'" },
+              "template": { "type": "template_id", "template_id": "2a9805481db0806fa5f5ee6333c8f5af" },
               "properties": {
                 "Change": {
                   "title": [
@@ -54,6 +58,18 @@ jobs:
                   "select": {
                     "name": "Ready for QA"
                   }
-                }
+                },
+                "Type of Testing": {
+                  "select": {
+                    "name": "Internal Testing"
+                  }
+                },
               }
-            }'
+            }')
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+          echo "HTTP Status: $HTTP_CODE"
+          echo "Response: $BODY"
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -gt 299 ]; then
+            exit 1
+          fi
