@@ -1,0 +1,162 @@
+name: 'PR - Verify feat implements enhancement proposal'
+
+# feat PRs must link an existing enhancement-proposal file in the roclub/docs
+# repo AND the PR diff must actually implement what that proposal describes.
+# The semantic check runs on GitHub Models (actions/ai-inference) — no external
+# API key, billed to the free GitHub Models tier.
+#
+# Cross-repo read: the proposal lives in a DIFFERENT repo (docs). GITHUB_TOKEN
+# can't read it. Provide a token with read access to roclub/docs as secret
+# DOCS_REPO_TOKEN (PAT or GitHub App).
+
+on:
+  pull_request:
+    types: [edited, opened, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write   # to comment
+  models: read           # required by actions/ai-inference
+
+env:
+  DOC_REPO: docs                            # owner assumed: roclub
+  DOC_PATH: roclub-enhancement-proposals    # required folder prefix
+  MODEL: openai/gpt-4o
+
+jobs:
+  verify:
+    if: ${{ startsWith(github.event.pull_request.title, 'feat') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Regex on PR body for proposal link
+        id: regex
+        uses: actions-ecosystem/action-regex-match@v2.0.2
+        with:
+          text: ${{ github.event.pull_request.body }}
+          regex: 'https:\/\/github\.com\/roclub\/${{ env.DOC_REPO }}\/blob\/[^\/\s]+\/${{ env.DOC_PATH }}\/[^\s)]+'
+
+      - name: Fetch proposal + PR diff
+        id: gather
+        env:
+          MATCH: ${{ steps.regex.outputs.match }}
+          DOCS_TOKEN: ${{ secrets.DOCS_REPO_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${MATCH:-}" ]; then
+            echo "result=no_link" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "Matched: $MATCH"
+
+          # Parse "<ref>/roclub-enhancement-proposals/<path>" out of the blob URL.
+          rest="${MATCH#https://github.com/roclub/${DOC_REPO}/blob/}"
+          ref="${rest%%/*}"
+          path="${rest#*/}"
+
+          # Fetch proposal content from the OTHER repo. 404 => file missing.
+          if ! GH_TOKEN="$DOCS_TOKEN" gh api \
+              "repos/roclub/${DOC_REPO}/contents/${path}?ref=${ref}" \
+              --jq '.content' 2>/dev/null | base64 -d > proposal.md; then
+            echo "result=not_found" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ ! -s proposal.md ]; then
+            echo "result=empty" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # PR diff (truncate to keep the model prompt bounded).
+          gh pr diff "$PR" --repo "$REPO" | head -c 60000 > pr.diff
+
+          # Assemble the judge prompt (proposal + diff) into one file.
+          {
+            echo "ENHANCEMENT PROPOSAL:"
+            echo "--- BEGIN PROPOSAL ---"
+            cat proposal.md
+            echo "--- END PROPOSAL ---"
+            echo
+            echo "PULL REQUEST DIFF:"
+            echo "--- BEGIN DIFF ---"
+            cat pr.diff
+            echo "--- END DIFF ---"
+            echo
+            echo "Does the PR diff implement what the proposal describes?"
+          } > prompt.txt
+
+          echo "result=ok" >> "$GITHUB_OUTPUT"
+
+      - name: Judge implementation with GitHub Models
+        id: judge
+        if: ${{ steps.gather.outputs.result == 'ok' }}
+        uses: actions/ai-inference@v1
+        with:
+          model: ${{ env.MODEL }}
+          system-prompt: |
+            You verify that a pull request implements the change described in an
+            enhancement proposal. Be strict: partial or unrelated diffs do NOT count.
+            Reply with ONLY a JSON object, no markdown fences:
+            {"implemented": true|false, "reason": "<one sentence>"}
+          prompt-file: prompt.txt
+          max-tokens: 1000
+
+      - name: Evaluate verdict
+        id: verdict
+        if: ${{ steps.gather.outputs.result == 'ok' }}
+        env:
+          RESPONSE: ${{ steps.judge.outputs.response }}
+        run: |
+          set -euo pipefail
+          echo "Model raw: $RESPONSE"
+          # Strip any accidental code fences, grab the JSON object.
+          json=$(printf '%s' "$RESPONSE" | tr -d '\r' | sed -n 's/.*\({.*}\).*/\1/p' | head -1)
+          impl=$(printf '%s' "$json" | jq -r '.implemented // false')
+          reason=$(printf '%s' "$json" | jq -r '.reason // "no reason"')
+          echo "reason=$reason" >> "$GITHUB_OUTPUT"
+          if [ "$impl" = "true" ]; then
+            echo "result=ok" >> "$GITHUB_OUTPUT"
+          else
+            echo "result=not_implemented" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Resolve outcome
+        id: outcome
+        run: |
+          g='${{ steps.gather.outputs.result }}'
+          if [ "$g" != "ok" ]; then
+            echo "result=$g" >> "$GITHUB_OUTPUT"
+          else
+            echo "result=${{ steps.verdict.outputs.result }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Comment on failure
+        if: ${{ steps.outcome.outputs.result != 'ok' }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const r = '${{ steps.outcome.outputs.result }}';
+            const reason = `${{ steps.verdict.outputs.reason }}`;
+            const msg = {
+              no_link:         'no link to a proposal file under `roclub-enhancement-proposals/` in the `docs` repo.',
+              not_found:       'the linked proposal does not exist in the `docs` repo (404).',
+              empty:           'the linked proposal path is empty or a directory.',
+              not_implemented: `the PR does not implement the linked proposal. Model: ${reason}`,
+            }[r] || 'the proposal link could not be verified.';
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `This is a \`feat\` PR but ${msg}\n\nLink an enhancement proposal like \`https://github.com/roclub/docs/blob/main/roclub-enhancement-proposals/<file>.md\` and make sure the code implements it.`
+            });
+
+      - name: Fail if not ok
+        if: ${{ steps.outcome.outputs.result != 'ok' }}
+        run: exit 1
+
+      - name: OK
+        if: ${{ steps.outcome.outputs.result == 'ok' }}
+        run: echo "feat PR implements its linked enhancement proposal."
