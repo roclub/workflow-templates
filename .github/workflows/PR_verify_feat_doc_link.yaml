@@ -16,12 +16,10 @@ on:
 permissions:
   contents: read
   pull-requests: write   # to comment
-  models: read           # required by actions/ai-inference
 
 env:
   DOC_REPO: docs                            # owner assumed: roclub
   DOC_PATH: roclub-enhancements-proposals   # required folder prefix
-  MODEL: openai/gpt-4.1-mini   # exact slug from the models.github.ai catalog
 
 jobs:
   verify:
@@ -93,8 +91,13 @@ jobs:
           # PR diff (truncate to keep the model prompt bounded).
           gh pr diff "$PR" --repo "$REPO" | head -c 60000 > pr.diff
 
-          # Assemble the judge prompt (proposal + diff) into one file.
+          # Assemble the judge prompt (instruction + proposal + diff) into one file.
           {
+            echo "You verify whether a pull request implements the change described"
+            echo "in an enhancement proposal. Be strict: partial or unrelated diffs"
+            echo "do NOT count. Reply with ONLY a JSON object, no markdown, no prose:"
+            echo '{"implemented": true|false, "reason": "<one sentence>"}'
+            echo
             echo "ENHANCEMENT PROPOSAL:"
             echo "--- BEGIN PROPOSAL ---"
             cat proposal.md
@@ -104,25 +107,30 @@ jobs:
             echo "--- BEGIN DIFF ---"
             cat pr.diff
             echo "--- END DIFF ---"
-            echo
-            echo "Does the PR diff implement what the proposal describes?"
           } > prompt.txt
 
           echo "result=ok" >> "$GITHUB_OUTPUT"
 
-      - name: Judge implementation with GitHub Models
+      - name: Set up Node.js
+        if: ${{ steps.gather.outputs.result == 'ok' }}
+        uses: actions/setup-node@v6
+
+      - name: Install Copilot CLI
+        if: ${{ steps.gather.outputs.result == 'ok' }}
+        run: npm install -g @github/copilot
+
+      - name: Judge implementation (Copilot)
         id: judge
         if: ${{ steps.gather.outputs.result == 'ok' }}
         uses: actions/ai-inference@v1
         with:
-          model: ${{ env.MODEL }}
-          system-prompt: |
-            You verify that a pull request implements the change described in an
-            enhancement proposal. Be strict: partial or unrelated diffs do NOT count.
-            Reply with ONLY a JSON object, no markdown fences:
-            {"implemented": true|false, "reason": "<one sentence>"}
           prompt-file: prompt.txt
+          provider: copilot
+          model: gpt-4.1
           max-tokens: 1000
+        env:
+          # Fine-grained PAT with the "Copilot Requests" permission.
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_PAT }}
 
       - name: Evaluate verdict
         id: verdict
@@ -131,8 +139,8 @@ jobs:
           RESPONSE: ${{ steps.judge.outputs.response }}
         run: |
           set -euo pipefail
-          echo "Model raw: $RESPONSE"
-          # Strip any accidental code fences, grab the JSON object.
+          echo "Raw: $RESPONSE"
+          # Grab the JSON object (in case the model wrapped it in prose/fences).
           json=$(printf '%s' "$RESPONSE" | tr -d '\r' | sed -n 's/.*\({.*}\).*/\1/p' | head -1)
           impl=$(printf '%s' "$json" | jq -r '.implemented // false')
           reason=$(printf '%s' "$json" | jq -r '.reason // "no reason"')
@@ -166,6 +174,7 @@ jobs:
               not_found:       'the linked proposal does not exist in the `docs` repo (404).',
               empty:           'the linked proposal path is empty or a directory.',
               doc_api_error:   'the docs repo could not be read (auth/config problem — see the Action logs).',
+              judge_error:     'the implementation check could not run (Copilot produced no verdict — see the Action logs).',
               not_implemented: `the PR does not implement the linked proposal. Model: ${reason}`,
             }[r] || 'the proposal link could not be verified.';
             github.rest.issues.createComment({
