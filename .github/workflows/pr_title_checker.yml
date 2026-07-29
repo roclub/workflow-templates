@@ -11,40 +11,37 @@ on:
 
 permissions:
   pull-requests: write
-  contents: write
 
 jobs:
   pr_title_checker:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Pull File
-        run: |
-          # locally clones remote repo to runner
-          git clone https://${{ secrets.PULL_FROM_OTHER_REPOSITORIES }}@github.com/roclub/workflow-templates.git source-repo
-          # Specify the files you want to pull and copy them to a file folder to maintain the original structure
-          mkdir -p .github/configs/
-          cp -u source-repo/.github/configs/pr-title-checker-config.json .github/configs/
-    
       - name: Check PR title
-        uses: thehanimo/pr-title-checker@v1.4.1
-        with:
+        id: lint_pr_title
+        uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          pass_on_octokit_error: false
-          local_configuration_path: .github/configs/pr-title-checker-config.json
+        with:
+          types: |
+            feat
+            fix
+            docs
+            perf
+            test
+            chore
+            refactor
 
       - name: Comment on PR
         if: failure()
         uses: actions/github-script@v7
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const prTitle = context.payload.pull_request.title;
-            github.rest.issues.createComment({
+            const errorMessage = ${{ toJSON(steps.lint_pr_title.outputs.error_message) }} ?? 'PR title validation failed.';
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `The title of your PR '${prTitle}' is non-compliant to the conventions. Please refer to our [GitHub documentation in Notion](https://www.notion.so/roclub/Git-GitHub-GitFlow-85cbb825be004d4d8b8ff6c0fa12204b?pvs=4#47e4e0bd334a4b0da3f6f3ad33e4009a).`
-            })
+              body: `The title of your PR '${prTitle}' is non-compliant to the conventions.\n\n${errorMessage}\n\nPlease refer to our [GitHub documentation in Notion](https://www.notion.so/roclub/Git-GitHub-GitFlow-85cbb825be004d4d8b8ff6c0fa12204b?pvs=4#47e4e0bd334a4b0da3f6f3ad33e4009a).`,
+            });
