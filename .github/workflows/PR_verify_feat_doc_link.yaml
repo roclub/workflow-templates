@@ -21,7 +21,7 @@ permissions:
 env:
   DOC_REPO: docs                            # owner assumed: roclub
   DOC_PATH: roclub-enhancements-proposals   # required folder prefix
-  MODEL: openai/gpt-5-mini   # exact slug from github.com/marketplace/models
+  MODEL: openai/gpt-4.1-mini   # exact slug from the models.github.ai catalog
 
 jobs:
   verify:
