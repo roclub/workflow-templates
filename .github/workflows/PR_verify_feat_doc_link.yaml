@@ -20,7 +20,7 @@ permissions:
 
 env:
   DOC_REPO: docs                            # owner assumed: roclub
-  DOC_PATH: roclub-enhancement-proposals    # required folder prefix
+  DOC_PATH: roclub-enhancements-proposals   # required folder prefix
   MODEL: openai/gpt-4o
 
 jobs:
@@ -141,7 +141,7 @@ jobs:
             const r = '${{ steps.outcome.outputs.result }}';
             const reason = `${{ steps.verdict.outputs.reason }}`;
             const msg = {
-              no_link:         'no link to a proposal file under `roclub-enhancement-proposals/` in the `docs` repo.',
+              no_link:         'no link to a proposal file under `roclub-enhancements-proposals/` in the `docs` repo.',
               not_found:       'the linked proposal does not exist in the `docs` repo (404).',
               empty:           'the linked proposal path is empty or a directory.',
               not_implemented: `the PR does not implement the linked proposal. Model: ${reason}`,
@@ -150,7 +150,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `This is a \`feat\` PR but ${msg}\n\nLink an enhancement proposal like \`https://github.com/roclub/docs/blob/main/roclub-enhancement-proposals/<file>.md\` and make sure the code implements it.`
+              body: `This is a \`feat\` PR but ${msg}\n\nLink an enhancement proposal like \`https://github.com/roclub/docs/blob/main/roclub-enhancements-proposals/REP-XXXX-Name/README.md\` and make sure the code implements it.`
             });
 
       - name: Fail if not ok
