@@ -1,0 +1,116 @@
+name: 'PR - Verify feat links enhancement proposal'
+
+# feat PRs must link an existing enhancement-proposal file in the roclub/docs
+# repo, under roclub-enhancements-proposals/. Existence only — no content check.
+#
+# Cross-repo read: the proposal lives in a DIFFERENT repo (docs). GITHUB_TOKEN
+# can't read it. Provide a token with read access to roclub/docs as secret
+# DOCS_REPO_TOKEN (PAT or GitHub App).
+
+on:
+  pull_request:
+    types: [edited, opened, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write   # to comment
+
+env:
+  DOC_REPO: docs                            # owner assumed: roclub
+  DOC_PATH: roclub-enhancements-proposals   # required folder prefix
+
+jobs:
+  verify:
+    if: ${{ startsWith(github.event.pull_request.title, 'feat') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Regex on PR body for proposal link
+        id: regex
+        uses: actions-ecosystem/action-regex-match@v2.0.2
+        with:
+          text: ${{ github.event.pull_request.body }}
+          regex: 'https:\/\/github\.com\/roclub\/${{ env.DOC_REPO }}\/blob\/[^\/\s]+\/${{ env.DOC_PATH }}\/[^\s)]+'
+
+      - name: Verify proposal exists
+        id: gather
+        env:
+          MATCH: ${{ steps.regex.outputs.match }}
+          DOCS_TOKEN: ${{ secrets.DOCS_REPO_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${MATCH:-}" ]; then
+            echo "result=no_link" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "Matched: $MATCH"
+
+          # Parse "<ref>/roclub-enhancements-proposals/<path>" out of the blob URL.
+          rest="${MATCH#https://github.com/roclub/${DOC_REPO}/blob/}"
+          ref="${rest%%/*}"
+          path="${rest#*/}"
+
+          if [ -z "${DOCS_TOKEN:-}" ]; then
+            echo "::error::DOCS_REPO_TOKEN secret is empty/unset"
+            echo "result=doc_api_error" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Check the file exists in the OTHER repo. Capture HTTP status so we
+          # can tell a real 404 from an auth failure (private repos 404 on denial).
+          echo "GET repos/roclub/${DOC_REPO}/contents/${path}?ref=${ref}"
+          status=$(curl -sS -o resp.json -w '%{http_code}' \
+            -H "Authorization: Bearer ${DOCS_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/roclub/${DOC_REPO}/contents/${path}?ref=${ref}")
+          echo "docs contents API HTTP $status"
+
+          if [ "$status" = "404" ]; then
+            echo "::warning::404 — file missing OR token cannot read roclub/${DOC_REPO}"
+            echo "result=not_found" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "$status" != "200" ]; then
+            echo "::error::docs API returned $status: $(cat resp.json)"
+            echo "result=doc_api_error" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Reject directories and empty files.
+          type=$(jq -r '.type // ""' resp.json)
+          size=$(jq -r '.size // 0' resp.json)
+          if [ "$type" != "file" ] || [ "$size" -eq 0 ]; then
+            echo "result=empty" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "result=ok" >> "$GITHUB_OUTPUT"
+
+      - name: Comment on failure
+        if: ${{ steps.gather.outputs.result != 'ok' }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const r = '${{ steps.gather.outputs.result }}';
+            const msg = {
+              no_link:       'no link to a proposal file under `roclub-enhancements-proposals/` in the `docs` repo.',
+              not_found:     'the linked proposal does not exist in the `docs` repo (404).',
+              empty:         'the linked proposal path is empty or a directory.',
+              doc_api_error: 'the docs repo could not be read (auth/config problem — see the Action logs).',
+            }[r] || 'the proposal link could not be verified.';
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `This is a \`feat\` PR but ${msg}\n\nLink an enhancement proposal like \`https://github.com/roclub/docs/blob/main/roclub-enhancements-proposals/REP-XXXX-Name/README.md\` in the PR description.`
+            });
+
+      - name: Fail if not ok
+        if: ${{ steps.gather.outputs.result != 'ok' }}
+        run: exit 1
+
+      - name: OK
+        if: ${{ steps.gather.outputs.result == 'ok' }}
+        run: echo "feat PR links a valid enhancement proposal."
