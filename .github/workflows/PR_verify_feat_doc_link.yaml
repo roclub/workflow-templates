@@ -6,6 +6,9 @@ name: 'PR - Verify feat links enhancement proposal'
 # Cross-repo read: the proposal lives in a DIFFERENT repo (docs). GITHUB_TOKEN
 # can't read it. Provide a token with read access to roclub/docs as secret
 # DOCS_REPO_TOKEN (PAT or GitHub App).
+#
+# Size gate: waits for the PR size labeler to finish (a size/* label to appear),
+# then skips the proposal check entirely for size/XS and size/S PRs.
 
 on:
   pull_request:
@@ -24,7 +27,40 @@ jobs:
     if: ${{ startsWith(github.event.pull_request.title, 'feat') }}
     runs-on: ubuntu-latest
     steps:
+      - name: Wait for size label
+        id: size
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Wait until the size labeler workflow has applied a size/* label.
+            const timeoutMs  = 5 * 60 * 1000;
+            const intervalMs = 15 * 1000;
+            const start = Date.now();
+            let sizeLabel = '';
+            while (Date.now() - start < timeoutMs) {
+              const { data: labels } = await github.rest.issues.listLabelsOnIssue({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+              });
+              const match = labels.find(l => l.name.toLowerCase().startsWith('size/'));
+              if (match) { sizeLabel = match.name; break; }
+              core.info('No size/* label yet — waiting...');
+              await new Promise(r => setTimeout(r, intervalMs));
+            }
+            if (!sizeLabel) {
+              core.warning('No size/* label appeared within 5 min — running the check anyway.');
+            } else {
+              core.info(`Size label: ${sizeLabel}`);
+            }
+            const skip = ['size/xs', 'size/s'].includes(sizeLabel.toLowerCase());
+            core.setOutput('label', sizeLabel);
+            core.setOutput('skip', skip ? 'true' : 'false');
+            if (skip) core.info('PR is XS/S — skipping proposal check.');
+
       - name: Regex on PR body for proposal link
+        if: ${{ steps.size.outputs.skip != 'true' }}
         id: regex
         uses: actions-ecosystem/action-regex-match@v2.0.2
         with:
@@ -32,6 +68,7 @@ jobs:
           regex: 'https:\/\/github\.com\/roclub\/${{ env.DOC_REPO }}\/blob\/[^\/\s]+\/${{ env.DOC_PATH }}\/[^\s)]+'
 
       - name: Verify proposal exists
+        if: ${{ steps.size.outputs.skip != 'true' }}
         id: gather
         env:
           MATCH: ${{ steps.regex.outputs.match }}
@@ -88,7 +125,7 @@ jobs:
           echo "result=ok" >> "$GITHUB_OUTPUT"
 
       - name: Comment on failure
-        if: ${{ steps.gather.outputs.result != 'ok' }}
+        if: ${{ steps.size.outputs.skip != 'true' && steps.gather.outputs.result != 'ok' }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -108,9 +145,13 @@ jobs:
             });
 
       - name: Fail if not ok
-        if: ${{ steps.gather.outputs.result != 'ok' }}
+        if: ${{ steps.size.outputs.skip != 'true' && steps.gather.outputs.result != 'ok' }}
         run: exit 1
 
       - name: OK
         if: ${{ steps.gather.outputs.result == 'ok' }}
         run: echo "feat PR links a valid enhancement proposal."
+
+      - name: Skipped (small PR)
+        if: ${{ steps.size.outputs.skip == 'true' }}
+        run: echo "PR labeled ${{ steps.size.outputs.label }} — proposal check skipped."
