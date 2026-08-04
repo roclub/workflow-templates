@@ -30,7 +30,7 @@ jobs:
     if: >-
       ${{ github.event.pull_request.merged == true &&
           startsWith(github.event.pull_request.title, 'feat') }}
-    runs-on: ubuntu-latest
+    runs-on: controlplane
     steps:
       - name: Regex on PR body for proposal link
         id: regex
